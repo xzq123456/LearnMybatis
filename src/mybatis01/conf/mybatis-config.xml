@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!--在这之前要导入约束文件 dtd文件  Mapper文件也是-->
+<configuration>
+    <!--propeeties  引入外部properties标签-->
+    <!--url:网络或者磁盘文件下的properties文件 resource：类路径下 -->
+    <properties resource="mybatis01/conf/db.properties"></properties>
+    <!--settings-->
+    <settings>
+        <!--开启驼峰命名  last_name lastName-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+    
+    <!--别名处理器-->
+    <typeAliases>
+        <!--<typeAlias type="mybatis01.Employee" alias="employee"></typeAlias>-->
+      <!--批量别名(别名是类名的小写) 为当前包下的所有类-->
+       <package name="mybatis01"></package>
+        <!--也可以在类上用注解去一个别名 @Alias 建议全类名：一点就会跳到返回类-->
+    </typeAliases>
+
+    <!--类型处理器-->
+    <!--<typeHandlers></typeHandlers>-->
+    <!--插件&ndash-->
+    <!--<plugins>-->
+        <!--<plugin interceptor=""></plugin>-->
+    <!--</plugins>-->
+    <!--environment 标签 transactionManager和datasource必须有
+     default:默认制定使用的环境
+    -->
+
+    <!--支持多数据库厂商  -->
+    <!--<databaseIdProvider type="DB_VENDOR">-->
+        <!--&lt;!&ndash;为数据库厂商起名字&ndash;&gt;-->
+        <!--<property name="MySQL" value="mysql"></property>-->
+    <!--</databaseIdProvider>-->
+    <environments default="development">
+        <!--模拟测试环境-->
+        <!--<environment id="test">-->
+            <!--&lt;!&ndash;事务控制  我们一般都交给spring&ndash;&gt;-->
+            <!--<transactionManager type=""></transactionManager>-->
+            <!--&lt;!&ndash;数据源 最后我们也都用spring&ndash;&gt;-->
+            <!--<dataSource type=""></dataSource>-->
+        <!--</environment>-->
+
+       <!--模拟开发环境-->
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <!--注意properties的设置和这边的引入一定要对起来-->
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+        
+        <!--<environment id="dev_mysql">-->
+            <!--<transactionManager type=""></transactionManager>-->
+            <!--<dataSource type=""></dataSource>-->
+        <!--</environment>-->
+        <!--<environment id="dev_orcle">-->
+            <!--<transactionManager type=""></transactionManager>-->
+            <!--<dataSource type=""></dataSource>-->
+        <!--</environment>-->
+    </environments>
+    <!--将写好的sql映射到全局配置文件中
+     resouce:类路径下
+     url:磁盘或者网络环境
+     class:直接引用接口 （必须把sql映射文件和接口放在同一目录下且名字相同）
+      <mapper class="mybatis01.dao.EmployeeMapper"></mapper>
+
+      mybatis也可以没有sql映射文件  所有的sql都是基于注解
+    -->
+    <mappers>
+        <!--<mapper resource="mybatis01/conf/EmployeeMapper.xml"/>-->
+        <!--&lt;!&ndash;基于注解的  简单的可以用注解  重要的和复杂的在xml上&ndash;&gt;-->
+        <!--<mapper class="mybatis01.dao.EmployeeMapperAnotation"></mapper>-->
+
+        <!--批量注册 写了注解的可以找到  不写注解的就得把mappper.xml方法接口同路径下-->
+        <package name="mybatis01.dao"></package>
+    </mappers>
+
+
+</configuration>
