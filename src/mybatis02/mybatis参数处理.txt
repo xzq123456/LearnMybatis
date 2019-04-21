@@ -1,0 +1,64 @@
+mybatis参数处理
+  单个参数：mybatis不做处理（#{} 里面写啥都行）
+ #{参数名}：取出参数值
+
+ 多个参数：多个参数会被封装成一个Map
+ key:parm1 parm2... 或者参数的索引
+ value:传入的值
+  #{}就是从map里获取指定的key
+
+    方法：public Employee getEmpByIdAndLastName(Integer id,String lastName);
+    取值：#{id} #{lastName}
+    Parameter 'id' not found. Available parameters are [arg1, arg0, param1, param2]
+    命名参数：明确指定封装参数时map的key  @Param注解
+           key:使用注解指定的值
+           value:参数值
+          #{指定的key} 取出对应的参数值
+
+   POJO
+   如果多个参数正好是业务逻辑的数据模型，我们可以直接传入pojo就可以
+   #{属性名} 就可以取出pojo的属性值
+
+   Map（不经常使用）:
+   如果多个参数不是业务模型中的数据，没有对应的pojo，也可以传入Map
+   #{key} 取出map的值
+
+    如果经常使用，（推荐写一个pojo）
+    Page{
+     int index;
+     int size;
+    }
+   ===================================================================================
+   public Employee getEmp(@Param("id") Interger id,String lastName)
+     取值:#{id/param1} #{param}
+
+     public Employee getEmp(Integer id ,@Param("e") Employee emp)
+     取值：id==>#{param1} lastName ===>#{e.lastName/param2.lastName}
+    #如果是set或者 list 数组，把传入的list封装咋map中
+            key:Collection(collection),如果是list  key(list)
+                 数组（array）
+    public Employee getEmpById(List<Integer> ids):
+      取值: 取第一个id  #{list[0]}
+  =====================================参数=======================================================
+ 注解方式：
+   标注：names(0=id 1=lastName)
+   没有标注：
+   1.配置全局属性 jdk1.8
+   2.没有配置  names(0=0,1=1)
+  1.先获取param注解的值@Param(没有注解就是size())
+
+ args[1,"Tom"]
+ 然后创建一个Map
+ 遍历names ,然后把names的Value作为Map的key，names的key作为args数组的索引 args[1,"tom"]
+ {id=args[0],lastName=args[1]}
+===========================================参数的取值=========================================================
+ #{}:以预编译方式。将参数设置到sql语句中，防止sql注入  只能取出参数位置的值进行预编译
+ ${};取出的值直接拼装，会有安全问题
+ 区别： select  * from employee where id=${id} and last_name=#{lastName}
+      运行时的sql：select * from employee where id=6 and last_name=?
+  原生jdbc不支持占位符的地方可以用${}
+  select * from ${year}_salary where xxx;
+  select * from employee order by #{f_name} ${order}
+ #{} 更丰富的用法：
+  javaType,resultMap..jdbcTypeName,typeHandler.......mode(存储过程)
+  jdbcType（数据为null的时候，有些数据库不识别mybatis对null的默认处理 比如orcale）

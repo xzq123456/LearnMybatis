@@ -6,18 +6,22 @@
 <configuration>
     <!--properties  引入外部properties标签-->
     <!--url:网络或者磁盘文件下的properties文件 resource：类路径下 -->
-    <properties resource="mybatis01/conf/db.properties"></properties>
-    <!--settings-->
+    <properties resource="mybatis03/conf/db.properties"></properties>
+
     <settings>
         <!--开启驼峰命名  last_name lastName-->
     <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!--打开延迟加载的开关-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--将积极加载改为消极加载及按需加载  -->
+        <setting name="aggressiveLazyLoading" value="false"/>
     </settings>
     
     <!--别名处理器 把javabean 起一个别名-->
     <typeAliases>
         <!--<typeAlias type="mybatis01.bean.Employee" alias="employee"></typeAlias>-->
       <!--批量别名(别名是类名的小写) 为当前包下的所有类-->
-       <package name="mybatis01.bean"></package>
+       <package name="mybatis02.bean"></package>
 
         <!--3.也可以在类上用注解去一个别名 @Alias  (注意：要在包扫描的情况下)   建议全类名：一点就会跳到返回类-->
     </typeAliases>
@@ -81,8 +85,7 @@
         <!--<mapper class="mybatis01.dao.EmployeeMapperAnotation"></mapper>-->
 
         <!--批量注册 写了注解的可以找到  不写注解的就得把mappper.xml方法接口同路径下-->
-        <package name="mybatis01.dao"></package>
+        <package name="mybatis03.dao"></package>
     </mappers>
-
 
 </configuration>

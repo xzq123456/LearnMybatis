@@ -1,6 +1,7 @@
 package mybatis01;
 
 
+import mybatis01.bean.Employee;
 import mybatis01.dao.EmployeeMapper;
 import mybatis01.dao.EmployeeMapperAnotation;
 import org.apache.ibatis.io.Resources;

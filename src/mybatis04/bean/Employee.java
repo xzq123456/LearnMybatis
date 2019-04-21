@@ -1,13 +1,43 @@
-package mybatis01;
+package mybatis04.bean;
 
 import org.apache.ibatis.type.Alias;
 
+import java.io.Serializable;
+
 @Alias("emp")
-public class Employee {
+public class Employee implements Serializable {
     private Integer id;
     private String lastName;
     private String gender;
     private String email;
+    private Department dept;
+
+    public  Employee(){
+
+    }
+
+    public Employee(Integer id, String lastName, String gender, String email) {
+        this.id = id;
+        this.lastName = lastName;
+        this.gender = gender;
+        this.email = email;
+    }
+
+    public Employee(Integer id, String lastName, String gender, String email, Department dept) {
+        this.id = id;
+        this.lastName = lastName;
+        this.gender = gender;
+        this.email = email;
+        this.dept = dept;
+    }
+
+    public Department getDept() {
+        return dept;
+    }
+
+    public void setDept(Department dept) {
+        this.dept = dept;
+    }
 
     public Integer getId() {
         return id;

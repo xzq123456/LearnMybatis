@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis02.dao.DepartmentMapper">
+      <select id="getDeptById" resultType="mybatis02.bean.Department">
+          select id ,dept_name deptName from dept where id=#{id}
+      </select>
+    <!-- public Department getPdetByIDPlus(Integer id);-->
+    <resultMap id="MyDept" type="mybatis02.bean.Department">
+         <id column="did" property="id"/>
+        <result column="dept_name" property="deptName"></result>
+        <!--定义集合属性的关联规则-->
+        <collection property="emps" ofType="mybatis02.bean.Employee">
+            <!--定义集合中元素的封装规则-->
+            <id  column="eid" property="id"/>
+            <result column="last_name" property="lastName"></result>
+            <result column="gender" property="gender"></result>
+            <result column="email" property="email"></result>
+        </collection>
+    </resultMap>
+
+    <select id="getPdetByIDPlus" resultMap="MyDept">
+        SELECT d.id did,d.dept_name dept_name,
+                e.id eid,e.last_name last_name,e.gender gender,e.email email
+        from dept d left JOIN employee e on d.id=e.d_id
+        where d.id=#{id}
+    </select>
+
+
+    <resultMap id="MyDept2" type="mybatis02.bean.Department">
+        <id column="id" property="id"></id>
+        <result column="dept_name" property="deptName"></result>
+        <!--column 将查处的那一列的值给select 里的方法-->
+        <!--fetchType lazy:懒加载（全局已经开启就不用配了） enger（立即加载）-->
+        <collection property="emps" select="mybatis02.dao.EmployeeMapperPuls.getEmpsByDeptId" column="id" fetchType="lazy"></collection>
+
+    </resultMap>
+    <!--public Department getDepyByIdStep(Integer id);-->
+    <select id="getDepyByIdStep" resultMap="MyDept2">
+        select * from dept where id=#{id}
+    </select>
+
+ <!--扩展 collection column 将多列的值传过去 ：将多列的值封装为map
+  column="{key1=column1,key2=column2}"
+   <collection property="emps" select="mybatis02.dao.EmployeeMapperPuls.getEmpsByDeptId" column="{d_id=id}"></collection>
+ -->
+
+
+</mapper>
+

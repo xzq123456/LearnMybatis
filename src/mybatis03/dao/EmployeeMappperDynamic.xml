@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis03.dao.EmployeeMappperDynamic">
+     <!--
+       if
+       choose （when otherwise） 如果带了id就用id ，带了啥就用啥查，只会进入其中一个，类似带了break的switch-case
+       trim
+       foreach
+       where封装查询条件  set（封装更新条件）
+     -->
+    <!--查询员工，要求：携带那个字段就带上哪个字段的值 if(OGNL表达式 参照官网 类似EL表达式)
+    判断条件是从传入的参数取值
+
+    有时候没带某些条件导致sql出错
+    解决方法：
+    1。在前面拼接where 1=1 条件都以and开头
+    2.使用where标签 自动去掉and or（第一个多出来的）
+    3.当and 放在后面。。。where去不掉 用trim
+     prefix="where" prefixOverrides="" suffix="" suffixOverrides="and"
+     prefix 前缀   prefixOverrides 去掉前缀
+     suffix  后缀   suffixOverrides 去掉后缀
+    -->
+    <select id="getEmpsByCOnditionIf" resultType="mybatis03.bean.Employee">
+      select  * from employee
+      <!--<where>-->
+      <!--<if test="id !=null">-->
+           <!--id=#{id}-->
+      <!--</if>-->
+      <!--<if test="lastName!=null and lastName!=''">-->
+         <!--and last_name like #{lastName}-->
+      <!--</if>-->
+        <!--<if test="email!=null and email.trim()!=''">-->
+            <!--and email = #{email}-->
+        <!--</if>-->
+        <!--<if test="gender==0 or gender==1">-->
+            <!--and gender = #{gender}-->
+        <!--</if>-->
+      <!--</where>-->
+
+
+        <trim prefix="where" suffixOverrides="and" >
+            <if test="id !=null">
+                id=#{id} and
+            </if>
+            <if test="lastName!=null and lastName!=''">
+                 last_name like #{lastName} and
+            </if>
+            <if test="email!=null and email.trim()!=''">
+                email = #{email} and
+            </if>
+            <if test="gender==0 or gender==1">
+                gender = #{gender} and
+            </if>
+        </trim>
+
+    </select>
+
+    <!--public List<Employee> getEmpsByCondationChoose(Employee employee);-->
+    <select id="getEmpsByCondationChoose" resultType="mybatis03.bean.Employee">
+        select * from employee
+        <where>
+             <choose>
+                <when test="id!=null">id=#{id}</when>
+                 <when test="lastName!=null">last_name like #{lastName}</when>
+                <when test="email!=null">email={#email}</when>
+                 <otherwise>
+                     gender=0
+                 </otherwise>
+             </choose>
+        </where>
+    </select>
+
+    <!--需求 更新  带了什么就更新什么-->
+    <!--public void updateEmployee(Employee employee);-->
+    <select id="updateEmployee">
+       update employee
+       <set>
+       <if test="lastName!=null">
+           last_name=#{lastName},
+       </if>
+        <if test="email!=null">
+            email=#{email},
+        </if>
+        <if test="gender==0 or gender==1">
+            gender=#{gender}
+        </if>
+       </set>
+       <where>id=#{id}</where>
+
+
+    </select>
+
+
+    <!--public List<Employee> getEmpsByConditionForeach(List<Integer> ids);
+     1. 如果传入的是单参数且参数类型是一个List的时候，collection属性值为list
+    2. 如果传入的是单参数且参数类型是一个array数组的时候，collection的属性值为array
+    3. 如果传入的参数是多个的时候，我们就需要把它们封装成一个Map了，当然单参数也可
+    collections:指定要遍历的集合 list类型的参数会特殊处理封装在map里，map的key就是list
+    item:将当前遍历出的元素复制给指定变量
+    separator:元素之间的分隔符
+    open:拼接一个开始字符
+    close:拼接一个结束字符
+    index: 遍历list就是索引，item就是值
+           遍历Map就是key，item就是值
+
+    -->
+    <select id="getEmpsByConditionForeach" resultType="mybatis03.bean.Employee">
+        select * from employee where id in
+        <foreach collection="ids" item="item_id" separator="," open="(" close=")" index="">
+            #{item_id}
+        </foreach>
+    </select>
+
+    <!--批量保存 values(),(),()-->
+    <!--public void addEmps(@Param("emps") List<Employee> emps);-->
+    <!--<select id="addEmps" >-->
+        <!--INSERT  into employee(last_name,email,gender,d_id) values-->
+        <!--<foreach collection="emps" item="emp" separator=",">-->
+            <!--(#{emp.lastName},#{emp.email},#{emp.gender},#{emp.dept.id})-->
+        <!--</foreach>-->
+    <!--</select>-->
+
+    <!--一次发多条sql  余姚设置mysql jdbc.url=jdbc:mysql://localhost:3306/mybatis?allowMultiQueries=true-->
+    <select id="addEmps">
+        <foreach collection="emps" item="emp" separator=";">
+            INSERT  into employee(
+            <include refid="insertColumn"></include>
+            ) values
+            (#{emp.lastName},#{emp.email},#{emp.gender},#{emp.dept.id})
+        </foreach>
+    </select>
+    <!--Oracle批量保存。。-->
+
+    <!--两个内置参数
+     _parameter :整个参数
+             单个参数：_parameter 就是这个参数
+             多个参数：_parameter 就代表封装参数的Map
+     _databaseId
+    -->
+    <!--public List<Employee> getEmpsTestParameter(Employee employee);
+     拼接模糊查询的%  1.用  '%${lastName}%'
+                      2.使用bind
+    -->
+    <select id="getEmpsTestParameter" resultType="mybatis03.bean.Employee">
+        <bind name="_lastName" value="'%'+lastName+'%' "></bind>
+        <!--<if test="_databaseId =='MySQL'">-->
+          select * from employee
+        <if test="_parameter!=null">
+            <where>last_name like #{_lastName}</where>
+        </if>
+        <!--</if>-->
+    </select>
+
+    <!--sql 抽取可重用的sql片段-->
+    <sql id="insertColumn">
+         <!--<if test="">-->
+          last_name,email,gender,d_id
+         <!--</if>-->
+    </sql>
+
+
+
+</mapper>

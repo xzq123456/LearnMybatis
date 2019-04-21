@@ -1,6 +1,6 @@
-package mybatis01.dao;
+package mybatis02.dao;
 
-import mybatis01.bean.Employee;
+import mybatis02.bean.Employee;
 import org.apache.ibatis.annotations.Select;
 
 public interface EmployeeMapperAnotation {
